@@ -1,0 +1,91 @@
+
+* error handling segment
+  * lines >> decode >> tsv >> downgrade_exception >> hoge
+    catches exceptions, and diverted it to anther stream (stderr)
+
+* tsv:
+  * dispatch
+  * permute
+
+            # xx need decoder segment:
+            #    fh --> raw-lines --> unicode-lines --> tsvs..
+            #    lines(sys.stdin) >> decode >> tsv
+
+
+* generic line operations
+
+  * sample(n) or every(n)
+
+  * def shuffle_key(arg=None):
+        """prefix input line with a shuffle key
+	   shuffle_key | sort | cut -f2-
+	"""
+        # xx generic line operation
+        import hashlib
+        for line in line_stream():
+            #spew(hashlib.md5(line).hexdigest(), line)
+            print hashlib.md5(line).hexdigest() + '\t' + line
+
+
+  *  def to_utf8(arg=None):
+        """normalize encoding to utf8"""
+        for line in b.dedup_s(line_stream(sys.stdin)):
+            try:
+                uline=line.decode('utf8')
+            except UnicodeDecodeError:
+                uline=line.decode('latin1')
+            except Exception, e:
+                print >>sys.stderr, e, line
+            print uline.encode('utf8')
+
+
+
+================
+     - leading / means prefix match like ^
+       /foo matches only the top element named foo
+
+     - pattern not starting with / can match anywhere
+
+     - glob-style . and *:
+     - . matches any single segment
+     - * matches any number of segments
+
+     todo: implement multiple segment wildcad match: *
+     foo/*/hoge ~ foo/hoge
+                ~ foo/bar/hoge
+                ~ foo/bar/baz/hoge
+                ...
+
+     * inhibited destructuring
+
+     * generalize above to:
+       segment specifier: selector [ extraction opts ]
+       syntax?
+       - [] selects list
+       - {} selects dict
+       - \ is an option to keep the current node (which should be a list or dict) 
+         intact
+    -----------------------------------
+    seg:       <selector> [; <opts>]
+    opts:      <char>* 
+               string of opt chars like perl's regex: s///giexms
+    selector:    literal
+                       example: /items
+               | &func-call-expr
+                       The cannonical handler. 
+                       Rest are short hand form of this.
+                       The segment value is represented by speical variable 'S'.
+               | <type-selector>
+                       Short hand for &isinstance(S, TYPE)
+                       [] for list
+                       {} for dict
+               | ~<regexp>
+                       Short hand for &re.match(REGEX, S)
+
+    reserved symbols in segments are: & ~ [] {}
+    reserved chars/symbols should be configurable.
+
+    TODO: traversal should be driven by match()
+          currently traversal is exhaustive.
+          also, every path is being re-evaluated.
+
