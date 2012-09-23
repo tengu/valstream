@@ -3,7 +3,7 @@ from setuptools import setup
     
 setup(
     name = "valstream",
-    version = "0.0.3",
+    version = "0.0.4",
 
     # scripts = ["valstream.py"],
     entry_points="""

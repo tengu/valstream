@@ -31,3 +31,15 @@ def _graph_edge_to_dot(name, edge_label=lambda s,d: ""):
 
     yield '}'
 
+def register_commands(baker=None):
+
+    if not baker:
+        import baker
+
+    baker.command(dot, 'dot')
+
+    return baker
+
+def main():
+    
+    register_commands().run()
